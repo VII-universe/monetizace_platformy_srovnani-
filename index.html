@@ -477,6 +477,37 @@
       background: linear-gradient(135deg, #fbbf24, #d97706);
       cursor: pointer; border: 2px solid rgba(245,158,11,0.4);
     }
+    /* Slider hint pulse — stops after first interaction */
+    @keyframes sliderHint {
+      0%   { transform: scaleX(1); }
+      20%  { transform: scaleX(1.06); }
+      40%  { transform: scaleX(0.96); }
+      60%  { transform: scaleX(1.03); }
+      80%  { transform: scaleX(0.98); }
+      100% { transform: scaleX(1); }
+    }
+    @keyframes thumbPulse {
+      0%,100% { box-shadow: 0 0 0 4px rgba(245,158,11,0.12), 0 0 16px rgba(245,158,11,0.4); }
+      50%     { box-shadow: 0 0 0 10px rgba(245,158,11,0.18), 0 0 32px rgba(245,158,11,0.65); }
+    }
+    .calc-slider.hint-active::-webkit-slider-thumb {
+      animation: thumbPulse 1.5s ease-in-out infinite;
+    }
+    .calc-hint-track {
+      animation: sliderHint 2.5s ease-in-out 1s infinite;
+      transform-origin: center;
+    }
+    .calc-hint-label {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 600; color: #f59e0b;
+      opacity: 0; animation: fadeIn 0.6s ease 0.8s forwards;
+      letter-spacing: 0.05em;
+    }
+    @keyframes arrowBounce {
+      0%,100% { transform: translateX(0); }
+      50%     { transform: translateX(5px); }
+    }
+    .hint-arrow { animation: arrowBounce 0.9s ease-in-out infinite; display: inline-block; }
     .calc-bar { border-radius: 6px 6px 0 0; transition: height 0.45s cubic-bezier(0.34,1.2,0.64,1); }
     .calc-bar-winner { background: linear-gradient(180deg, #fde68a 0%, #f59e0b 50%, #b45309 100%); box-shadow: 0 -8px 32px rgba(245,158,11,0.25); }
     .calc-bar-loser { background: linear-gradient(180deg, #f87171 0%, #dc2626 50%, #7f1d1d 100%); opacity: 0.7; }
@@ -2178,10 +2209,17 @@
 
     <!-- Slider -->
     <div class="mb-10">
-      <input type="range" id="revenueSlider" class="calc-slider" min="10000" max="500000" value="100000" step="5000">
-      <div class="flex justify-between text-xs text-slate-600 mt-3">
+      <div class="calc-hint-track">
+        <input type="range" id="revenueSlider" class="calc-slider hint-active" min="10000" max="500000" value="100000" step="5000">
+      </div>
+      <div class="flex justify-between text-xs text-slate-600 mt-2">
         <span>10 000 Kč · začínající tvůrce</span>
         <span>500 000 Kč · top creator</span>
+      </div>
+      <div class="calc-hint-label mt-2" id="calcHintLabel">
+        <span class="hint-arrow">←</span>
+        Táhni posuvník a sleduj rozdíly
+        <span class="hint-arrow" style="animation-delay:0.15s;">→</span>
       </div>
     </div>
 
@@ -2190,12 +2228,12 @@
 
       <!-- Winner -->
       <div class="flex flex-col items-center">
-        <div class="w-full flex flex-col items-center justify-end" style="height:180px; position:relative;">
+        <div class="w-full flex flex-col items-center justify-end" style="height:220px; position:relative;">
           <div class="absolute top-0 left-0 right-0 text-center">
             <div class="text-amber-300 font-black text-sm transition-all" id="calcWinner">100 000 Kč</div>
-            <div class="text-green-400 text-xs font-semibold">+0 ztráta</div>
+            <div class="text-green-400 text-xs font-semibold">0 Kč ztráta</div>
           </div>
-          <div id="barWinner" class="calc-bar calc-bar-winner w-full" style="height:160px; min-height:8px;"></div>
+          <div id="barWinner" class="calc-bar calc-bar-winner w-full" style="height:200px; min-height:8px;"></div>
         </div>
         <div class="mt-3 text-center">
           <div class="text-white text-xs font-bold">Vítěz testu</div>
@@ -2205,12 +2243,12 @@
 
       <!-- Patreon -->
       <div class="flex flex-col items-center">
-        <div class="w-full flex flex-col items-center justify-end" style="height:180px; position:relative;">
+        <div class="w-full flex flex-col items-center justify-end" style="height:220px; position:relative;">
           <div class="absolute top-0 left-0 right-0 text-center">
             <div class="text-red-400 font-bold text-xs transition-all" id="calcPATloss">−10 000 Kč</div>
             <div class="text-slate-400 text-xs" id="calcPAT">90 000 Kč</div>
           </div>
-          <div id="barPAT" class="calc-bar calc-bar-loser w-full" style="height:144px; min-height:8px;"></div>
+          <div id="barPAT" class="calc-bar calc-bar-loser w-full" style="height:180px; min-height:8px;"></div>
         </div>
         <div class="mt-3 text-center">
           <div class="text-white text-xs font-bold">Patreon</div>
@@ -2220,12 +2258,12 @@
 
       <!-- OnlyFans -->
       <div class="flex flex-col items-center">
-        <div class="w-full flex flex-col items-center justify-end" style="height:180px; position:relative;">
+        <div class="w-full flex flex-col items-center justify-end" style="height:220px; position:relative;">
           <div class="absolute top-0 left-0 right-0 text-center">
             <div class="text-red-400 font-bold text-xs transition-all" id="calcOFloss">−20 000 Kč</div>
             <div class="text-slate-400 text-xs" id="calcOF">80 000 Kč</div>
           </div>
-          <div id="barOF" class="calc-bar calc-bar-loser w-full" style="height:128px; min-height:8px;"></div>
+          <div id="barOF" class="calc-bar calc-bar-loser w-full" style="height:160px; min-height:8px;"></div>
         </div>
         <div class="mt-3 text-center">
           <div class="text-white text-xs font-bold">OnlyFans</div>
@@ -2235,12 +2273,12 @@
 
       <!-- YouTube -->
       <div class="flex flex-col items-center">
-        <div class="w-full flex flex-col items-center justify-end" style="height:180px; position:relative;">
+        <div class="w-full flex flex-col items-center justify-end" style="height:220px; position:relative;">
           <div class="absolute top-0 left-0 right-0 text-center">
             <div class="text-red-400 font-black text-sm transition-all" id="calcYTloss">−45 000 Kč</div>
             <div class="text-slate-400 text-xs" id="calcYT">55 000 Kč</div>
           </div>
-          <div id="barYT" class="calc-bar calc-bar-loser w-full" style="height:88px; min-height:8px;"></div>
+          <div id="barYT" class="calc-bar calc-bar-loser w-full" style="height:110px; min-height:8px;"></div>
         </div>
         <div class="mt-3 text-center">
           <div class="text-white text-xs font-bold">YouTube</div>
@@ -3114,15 +3152,29 @@
 
   // ── Freedom Calculator ────────────────────────────────────────
   (function() {
-    const slider = document.getElementById('revenueSlider');
+    const slider    = document.getElementById('revenueSlider');
+    const hintLabel = document.getElementById('calcHintLabel');
     if (!slider) return;
 
-    const MAX_H = 160;
-    const MAX_VAL = 500000;
+    // Winner is always MAX_H — others scale relative to winner
+    const MAX_H = 200;
     const fmt = n => n.toLocaleString('cs-CZ') + ' Kč';
+    let hintDismissed = false;
+
+    function dismissHint() {
+      if (hintDismissed) return;
+      hintDismissed = true;
+      slider.classList.remove('hint-active');
+      slider.closest('.calc-hint-track').style.animation = 'none';
+      if (hintLabel) {
+        hintLabel.style.transition = 'opacity 0.4s ease';
+        hintLabel.style.opacity = '0';
+        setTimeout(() => hintLabel.style.display = 'none', 400);
+      }
+    }
 
     function updateCalc() {
-      const val = parseInt(slider.value);
+      const val   = parseInt(slider.value);
       const winner = val;
       const pat   = Math.round(val * 0.90);
       const of    = Math.round(val * 0.80);
@@ -3141,12 +3193,11 @@
       document.getElementById('calcYT').textContent        = fmt(yt);
       document.getElementById('calcYTloss').textContent    = '−' + fmt(ytL);
 
-      // Bar heights (proportional to max value)
-      const scale = val / MAX_VAL;
-      document.getElementById('barWinner').style.height = Math.max(8, scale * MAX_H)          + 'px';
-      document.getElementById('barPAT').style.height    = Math.max(8, scale * MAX_H * 0.90)   + 'px';
-      document.getElementById('barOF').style.height     = Math.max(8, scale * MAX_H * 0.80)   + 'px';
-      document.getElementById('barYT').style.height     = Math.max(8, scale * MAX_H * 0.55)   + 'px';
+      // Bar heights — winner always at MAX_H, others relative to winner
+      document.getElementById('barWinner').style.height = MAX_H          + 'px';
+      document.getElementById('barPAT').style.height    = Math.round(MAX_H * 0.90) + 'px';
+      document.getElementById('barOF').style.height     = Math.round(MAX_H * 0.80) + 'px';
+      document.getElementById('barYT').style.height     = Math.round(MAX_H * 0.55) + 'px';
 
       // Annual / 5-yr summaries
       document.getElementById('annualVsOF').textContent  = fmt(ofL  * 12);
@@ -3154,7 +3205,9 @@
       document.getElementById('fiveYrYT').textContent    = fmt(ytL  * 12 * 5);
     }
 
-    slider.addEventListener('input', updateCalc);
+    slider.addEventListener('input', () => { dismissHint(); updateCalc(); });
+    slider.addEventListener('mousedown', dismissHint);
+    slider.addEventListener('touchstart', dismissHint, { passive: true });
     updateCalc();
   })();
 
