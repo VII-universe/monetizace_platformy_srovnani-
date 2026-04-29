@@ -506,7 +506,7 @@
     .colon-blink { animation: blink 1s ease-in-out infinite; }
 
     /* ── Radar chart ────────────────────────────────────────────── */
-    .radar-wrap { position: relative; width: 100%; height: 480px; }
+    .radar-wrap { position: relative; width: 100%; height: 480px; z-index: 20; isolation: isolate; }
 
     /* Mobile responsive table */
     @media (max-width: 768px) {
@@ -3261,6 +3261,7 @@
             titleFont: { weight: '800', size: 12, family: 'Inter, sans-serif' },
             bodyFont: { size: 11 },
             padding: 14,
+            zIndex: 9999,
             displayColors: true,
             boxWidth: 10,
             boxHeight: 10,
