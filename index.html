@@ -3290,12 +3290,60 @@
             chart.data.datasets[2].data = REAL.onlyfans;
             chart.data.datasets[3].data = REAL.patreon;
             chart.update();
-          }, 300);
+            // Start floating point animation after draw-in completes
+            startFloatAnimation();
+          }, 1800);
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.4 });
     observer.observe(canvas);
+
+    // Floating point animation — subtle sine-wave oscillation on all datasets
+    function startFloatAnimation() {
+      // Phase offsets per point (rad) — each point moves independently
+      const phases = [0, 1.2, 2.5, 0.7, 1.9];
+      // Amplitude per dataset: Watchimo more visible, others subtle
+      const amps   = [0.28, 0.15, 0.15, 0.15];
+      // Speed (radians per ms)
+      const speed  = 0.0008;
+      let rafId;
+      let startTs;
+
+      const bases = [REAL.watchimo, REAL.youtube, REAL.onlyfans, REAL.patreon];
+      // Clamp helpers so values stay in 0–10 range
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+      function tick(ts) {
+        if (!startTs) startTs = ts;
+        const t = (ts - startTs) * speed;
+
+        bases.forEach((base, di) => {
+          chart.data.datasets[di].data = base.map((v, pi) =>
+            clamp(v + amps[di] * Math.sin(t + phases[pi] + di * 0.9), 0, 10)
+          );
+        });
+
+        // Silent update — skip animation to keep it smooth
+        chart.update('none');
+        rafId = requestAnimationFrame(tick);
+      }
+
+      rafId = requestAnimationFrame(tick);
+
+      // Pause when chart leaves viewport to save CPU
+      const visObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) {
+            cancelAnimationFrame(rafId);
+          } else {
+            startTs = null;
+            rafId = requestAnimationFrame(tick);
+          }
+        });
+      }, { threshold: 0.1 });
+      visObserver.observe(canvas);
+    }
   })();
 
   // ── Burnout bars animate on scroll ───────────────────────────
